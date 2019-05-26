@@ -6,34 +6,39 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 15:10:22
 @LastEditors: iwenli
-@LastEditTime: 2019-05-23 16:42:54
+@LastEditTime: 2019-05-26 09:21:43
 @Description: 日志
 '''
 __author__ = 'iwenli'
 
 import os
-import time
+import datetime
 import logging
 import inspect
 from logging.handlers import RotatingFileHandler
 from colorlog import ColoredFormatter
 import traceback
 
+dir_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+suffix_time = datetime.datetime.now().strftime('%Y%m%d')
+
 dir = os.path.dirname(__file__)
 dir = os.path.join(dir, '_log')
 if not os.path.isdir(dir):
     os.mkdir(dir)
-dir_time = time.strftime('%Y-%m-%d', time.localtime())
+dir = os.path.join(dir, dir_time)
+if not os.path.isdir(dir):
+    os.mkdir(dir)
 
 defult_log_level = logging.WARNING  # 打印日志级别
 
 handlers = {
-    logging.NOTSET: os.path.join(dir, 'notset_%s.log' % dir_time),
-    logging.DEBUG: os.path.join(dir, 'debug_%s.log' % dir_time),
-    logging.INFO: os.path.join(dir, 'info_%s.log' % dir_time),
-    logging.WARNING: os.path.join(dir, 'warning_%s.log' % dir_time),
-    logging.ERROR: os.path.join(dir, 'error_%s.log' % dir_time),
-    logging.CRITICAL: os.path.join(dir, 'critical_%s.log' % dir_time),
+    logging.NOTSET: os.path.join(dir, 'notset_%s.log' % suffix_time),
+    logging.DEBUG: os.path.join(dir, 'debug_%s.log' % suffix_time),
+    logging.INFO: os.path.join(dir, 'info_%s.log' % suffix_time),
+    logging.WARNING: os.path.join(dir, 'warning_%s.log' % suffix_time),
+    logging.ERROR: os.path.join(dir, 'error_%s.log' % suffix_time),
+    logging.CRITICAL: os.path.join(dir, 'critical_%s.log' % suffix_time),
 }
 
 
@@ -68,7 +73,7 @@ def singleton(cls, *args, **kw):
 @singleton
 class TxLog(object):
     def printfNow(self):
-        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def __init__(self, level=defult_log_level):
         self.__loggers = {}

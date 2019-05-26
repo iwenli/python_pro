@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-23 11:39:09
 @LastEditors: iwenli
-@LastEditTime: 2019-05-23 15:50:18
+@LastEditTime: 2019-05-26 17:27:57
 @Description: 通知相关
 '''
 __author__ = 'iwenli'
@@ -15,9 +15,10 @@ import data
 import datetime
 import wechatpy
 import threading
-
+import txlog
 repository = data.Repository()
 lock = threading.Lock()
+log = txlog.TxLog()
 
 
 class NotifyBase(object):
@@ -50,14 +51,19 @@ class DingTalkNotify(NotifyBase):
 class WxNotify(NotifyBase):
     '''微信通知'''
     __client_dick = dict()  # 账户wechatpy客户端字典 {10000000:(account,object))}
+    __setting_update_time = None  # 缓存更新时间
+    __settings = None
+    __users = None
 
-    __setting_update_time = datetime.datetime.now()  # 缓存更新时间
-    __settings = repository.getNotifySettings()
-    __users = repository.getNotifyUsers()
+    def __init__(self):
+        WxNotify.__setting_update_time = datetime.datetime.now(
+        ) - datetime.timedelta(hours=1)  # 前一小时
+        self.__get_notify_date_lock()
 
     def __get_client_lock(account_id):
         lock.acquire()
         try:
+            log.warning('开始更新[%s]账户数据' % account_id)
             _account = repository.getAccount(account_id)
             _client = wechatpy.WeChatClient(
                 _account.get('app_id'),
@@ -65,8 +71,26 @@ class WxNotify(NotifyBase):
                 access_token=_account.get('access_token'))
             _ac = (_account, _client)
             WxNotify.__client_dick[account_id] = _ac
+            log.warning('[%s]账户数据更新完成' % account_id)
         finally:
             lock.release()  # 释放
+
+    def __get_notify_date_lock(self):
+        '''
+        @description: 加锁更新数据 30分钟有效
+        '''
+        if datetime.datetime.now(
+        ) - WxNotify.__setting_update_time > datetime.timedelta(seconds=60 *
+                                                                30):
+            lock.acquire()
+            try:
+                log.warning('开始更新Notify配置数据')
+                WxNotify.__settings = repository.getNotifySettings()
+                WxNotify.__users = repository.getNotifyUsers()
+                WxNotify.__setting_update_time = datetime.datetime.now()
+                log.warning('Notify配置数据更新完成')
+            finally:
+                lock.release()
 
     def _get_client(account_id):
         '''
@@ -82,12 +106,14 @@ class WxNotify(NotifyBase):
         return WxNotify.__client_dick.get(account_id)[1]
 
     def _get_settings(self, brand_id):
+        self.__get_notify_date_lock()
         return [
             x for x in self.__settings
             if x.get('wx_open') and x.get('brand_id') in [-1, brand_id]
         ]
 
     def _get_users(self, setting_id):
+        self.__get_notify_date_lock()
         return [
             x for x in self.__users
             if x.get('is_open') and x.get('setting_id') == setting_id
@@ -158,11 +184,13 @@ class WxNotify(NotifyBase):
         异常通知
         '''
         users = [
-            # 'oa2OAjmXfQAEAkn0f81RL6RsJEOU',
-            'oa2OAjriOKl7kWu-rc4m5si77-9A'
+            'oa2OAjmXfQAEAkn0f81RL6RsJEOU', 'oa2OAjriOKl7kWu-rc4m5si77-9A'
         ]
         template_id = 'DVQvh9emcFE8qlQZzfN3TbTe0dSn-3ggn-V9HvDOb_s'
-        d = {'title': '请求异常', 'content': error + item.get('page_url')}
+        d = {
+            'title': '请求异常',
+            'content': '[%s]%s' % (error, item.get('page_url'))
+        }
         client = WxNotify._get_client(100000000)
         for user in users:
             client.message.send_template(user,
