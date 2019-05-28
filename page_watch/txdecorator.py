@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 16:06:53
 @LastEditors: iwenli
-@LastEditTime: 2019-05-25 14:29:11
+@LastEditTime: 2019-05-28 15:49:13
 @Description: 装饰器
 '''
 __author__ = 'iwenli'
