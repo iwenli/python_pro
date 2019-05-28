@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-23 11:39:09
 @LastEditors: iwenli
-@LastEditTime: 2019-05-28 16:28:26
+@LastEditTime: 2019-05-28 16:47:39
 @Description: 通知相关
 '''
 __author__ = 'iwenli'
@@ -306,6 +306,8 @@ def send_3(item):
         'title': '页面重定向通知',
         'content': '%s\n此页面已重定向到其他路径，请尽快处理' % item.get('page_url')
     }
+    # 通知同时暂停
+    network.stop(item.get('page_url_id'))
     wechatNotify.send(item, **d)
     dingTalkNotify.send(item, **d)
 
@@ -349,7 +351,7 @@ if __name__ == '__main__':
     #             'content': '这里是要发送的通知消息'
     #         }))
     # send_error({'brand_id': 1, 'page_url': 'https://www.txooo.com'}, 'AOP异常')
-    send_4({
+    send_3({
         'page_url_id': 1,
         'brand_id': 1,
         'page_url': 'http://www.txooo.com'

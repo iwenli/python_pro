@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 14:27:45
 @LastEditors: iwenli
-@LastEditTime: 2019-05-28 16:30:13
+@LastEditTime: 2019-05-28 16:49:11
 @Description: http请求
 '''
 __author__ = 'iwenli'
@@ -66,15 +66,32 @@ def dingtalk_access_token(agent_id):
     获取钉钉access_token
     {"errcode":0,"access_token":"xxx","errmsg":"ok","expires_in":7200}
     '''
+    url = 'https://oapi.dingtalk.com/gettoken'
     try:
         resp = httpPool.request(
-            'GET',
-            'https://oapi.dingtalk.com/gettoken',
-            fields=data._conf.get('dingtalk').get(agent_id))
+            'GET', url, fields=data._conf.get('dingtalk').get(agent_id))
         return resp.data.decode('utf-8-sig')
     except Exception as ex:
-        print(str(ex))
+        log.error('[请求异常] %s  \n %s' % (url, str(ex)))
     return None
+
+
+def stop(page_id):
+    '''
+    @description: 暂停计划接口
+    @param {page_id:页面id} 
+    @return: 
+    '''
+    url = 'http://pagewatch.txooo.com/ajax/action.pw/stop?dingtalk_userid=-100&page_id=' + str(
+        page_id)
+    try:
+        resp = httpPool.request('GET', url)
+        resp_data = resp.data.decode('utf-8-sig')
+        log.debug('页面[%s]-[暂停]请求：%s' % (page_id, resp_data))
+        return resp_data
+    except Exception as ex:
+        log.error('[请求异常] %s  \n %s' % (url, str(ex)))
+    return ''
 
 
 def dingtalk_msg_sendasync(access_token,
