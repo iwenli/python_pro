@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 11:11:16
 @LastEditors: iwenli
-@LastEditTime: 2019-05-28 16:49:19
+@LastEditTime: 2019-06-05 14:32:32
 @Description: 数据仓储操作
 '''
 __author__ = 'iwenli'
@@ -19,6 +19,8 @@ import txlog
 
 log = txlog.TxLog()
 conf_str = os.getenv("PY_PW_CONF")  # 环境变量中提取配置字符串
+if conf_str is None:
+    conf_str = '{"db_mssql":{"TxoooSEMPageWatch":{"host":"10.10.10.212","port":1433,"database":"TxoooSEMPageWatch","user":"TxoooNewDataBaseDesignUser","password":"Tx)))NewSJCoolSJPassWORderAdmin"},"TxoooMobile":{"host":"10.10.10.42","port":1433,"database":"TxoooMobile","user":"TxoooNewDataBaseDesignUser","password":"Tx)))NewSJCoolSJPassWORderAdmin"},"TxoooNEx":{"host":"10.10.10.36","port":1433,"database":"TxoooNEx","user":"TxoooNewDataBaseDesignUser","password":"Tx)))NewSJCoolSJPassWORderAdmin"}},"dingtalk":{"266367788":{"appkey":"dingxhndnjh9pumrnwmk","appsecret":"OhRuAN3zkXWdRBQ15q1rvxXUMs8Luv7uDEdvcHThaKJKphXiZqIU99weUWALl6Lq"}}}'
 _conf = json.loads(conf_str)
 
 

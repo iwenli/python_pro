@@ -6,7 +6,7 @@
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 14:27:45
 @LastEditors: iwenli
-@LastEditTime: 2019-05-28 16:49:11
+@LastEditTime: 2019-06-05 15:17:47
 @Description: http请求
 '''
 __author__ = 'iwenli'
@@ -17,12 +17,15 @@ import txdecorator
 import txnotify
 import json
 import data
+import certifi
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # 取消ssl验证
 timeout = 5  # 超时时间  5 秒
 httpPool = urllib3.PoolManager(timeout=timeout,
                                num_pools=5,
-                               headers={'User-Agent': 'txooo/page_watch'})
+                               headers={'User-Agent': 'txooo/page_watch'},
+                               cert_reqs='CERT_REQUIRED',
+                               ca_certs=certifi.where())
 log = txlog.TxLog()
 txlog.TxLog()
 
@@ -124,30 +127,30 @@ def dingtalk_msg_sendasync(access_token,
 
 if __name__ == "__main__":
     # print(dingtalk_access_token())
-    txnotify.send_4({'brand_id': 1, 'page_url': 'http://www.txooo.com'})
+    # txnotify.send_4({'brand_id': 1, 'page_url': 'http://www.txooo.com'})
 
-    # url = 'https://sjh.baidu.com/site/282848.cn/c1340db8-aa0c-4263-aff0-390c4b4e3591'
-    # resp = None
-    # html = None
-    # try:
-    #     resp = httpPool.request('GET', url, redirect=False,
-    #                             retries=10)  # 允许重定向 请求失败重试10次
-    #     if (resp.status == 200):
-    #         # log.info('[请求完成] %s' % url)
-    #         html = resp.data.decode('utf-8-sig')
-    #     elif (resp.status == 404):
-    #         pass
-    #         # txnotify.send_4(item)
-    #         # 404通知
-    #     elif (resp.status >= 300 and resp.status < 400):  # 3xx
-    #         pass
-    #         # txnotify.send_3(item)
-    #         # 3xx重定向严重通知
-    #     else:
-    #         log.critical('[请求失败] [状态:%s]-%s' % (resp.status, url))
-    # except UnicodeDecodeError:
-    #     html = resp.data.decode('gb2312')
-    # except Exception as ex:
-    #     log.error('[请求异常] %s  \n %s' % (url, str(ex)))
-    # finally:
-    #     print(html)
+    url = 'https://sjh.baidu.com/site/082818.cn/80afe197-20ce-47ad-9368-8ab6c1ff6c1c?showpageinpc=1'
+    resp = None
+    html = None
+    try:
+        resp = httpPool.request('GET', url, redirect=False,
+                                retries=10)  # 允许重定向 请求失败重试10次
+        if (resp.status == 200):
+            # log.info('[请求完成] %s' % url)
+            html = resp.data.decode('utf-8-sig')
+        elif (resp.status == 404):
+            pass
+            # txnotify.send_4(item)
+            # 404通知
+        elif (resp.status >= 300 and resp.status < 400):  # 3xx
+            pass
+            # txnotify.send_3(item)
+            # 3xx重定向严重通知
+        else:
+            log.critical('[请求失败] [状态:%s]-%s' % (resp.status, url))
+    except UnicodeDecodeError:
+        html = resp.data.decode('gb2312')
+    except Exception as ex:
+        log.error('[请求异常] %s  \n %s' % (url, str(ex)))
+    finally:
+        print(html)
