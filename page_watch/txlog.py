@@ -5,8 +5,8 @@
 @License: Copyright © 2019 txooo.com Inc. All rights reserved.
 @Github: https://github.com/iwenli
 @Date: 2019-05-21 15:10:22
-@LastEditors: iwenli
-@LastEditTime: 2019-05-26 09:21:43
+LastEditors: iwenli
+LastEditTime: 2020-11-17 17:58:39
 @Description: 日志
 '''
 __author__ = 'iwenli'
@@ -17,7 +17,7 @@ import logging
 import inspect
 from logging.handlers import RotatingFileHandler
 from colorlog import ColoredFormatter
-import traceback
+# import traceback
 
 dir_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 suffix_time = datetime.datetime.now().strftime('%Y%m%d')
