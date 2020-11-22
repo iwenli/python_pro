@@ -5,7 +5,7 @@ License: Copyright © 2019 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-20 13:11:13
 LastEditors: iwenli
-LastEditTime: 2020-11-20 18:04:22
+LastEditTime: 2020-11-22 14:47:03
 Description: 工具
 '''
 __author__ = 'iwenli'
@@ -83,27 +83,32 @@ class Http(object):
     """
     headers = {}
 
-    @retry(stop_max_attempt_number=3)  # 最大重试3次，3次全部报错，才会报错
+    # 最大重试3次，3次全部报错，才会报错
+    @retry(stop_max_attempt_number=3, wait_random_min=1, wait_random_max=30)
     def get_internal(url):
         '''
         get请求的出口
         '''
         response = requests.get(
-            url, headers=Http.headers, timeout=3)  # 超时的时候回报错并重试
+            url, headers=Http.headers, timeout=30)  # 超时的时候回报错并重试
 
         if(response.status_code != 200):
             print(f'{url}请求状态{response.status_code}，马上重试')
 
-        assert response.status_code == 200  # 状态码不是200，也会报错并充实
+        assert response.status_code == 200  # 状态码不是200，也会报错
         return response
 
     def get(self, url):
         return Http.get_internal(url)
 
     def get_text(self, url, encoding='utf-8'):
-        resp = Http.get_internal(url)
-        resp.encoding = encoding
-        return resp.text
+        try:
+            resp = Http.get_internal(url)
+            resp.encoding = encoding
+            return resp.text
+        except AssertionError as ex:
+            print(ex)
+            return ''
 
     def get_cookie(self, url, cookie_name):
         response = Http.get_internal(url)

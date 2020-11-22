@@ -5,7 +5,7 @@ License: Copyright © 2019 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-20 12:38:05
 LastEditors: iwenli
-LastEditTime: 2020-11-20 17:52:06
+LastEditTime: 2020-11-22 15:01:41
 Description: 新笔趣阁 --  下载章节
 '''
 __author__ = 'iwenli'
@@ -56,6 +56,7 @@ def downloads(chapters):
             if(content is None):
                 continue
 
+            content.p.decompose()  # 去除底部广告
             ebook_txts = content.text.replace('\xa0\xa0\xa0\xa0', '')
             chapter.WordNums = len(content.text)
 
