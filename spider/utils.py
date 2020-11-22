@@ -5,7 +5,7 @@ License: Copyright © 2019 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-20 13:11:13
 LastEditors: iwenli
-LastEditTime: 2020-11-22 14:47:03
+LastEditTime: 2020-11-22 15:47:21
 Description: 工具
 '''
 __author__ = 'iwenli'
@@ -15,6 +15,7 @@ from retrying import retry
 from bs4 import BeautifulSoup
 import re
 import os
+from fake_useragent import UserAgent
 
 
 class Convert(object):
@@ -81,16 +82,17 @@ class Http(object):
     """
     一个发送网络请求的简单封装
     """
-    headers = {}
-
+    ua = UserAgent()
     # 最大重试3次，3次全部报错，才会报错
+
     @retry(stop_max_attempt_number=3, wait_random_min=1, wait_random_max=30)
     def get_internal(url):
         '''
         get请求的出口
         '''
+        headers = {'User-Agent': str(Http.ua.random)}
         response = requests.get(
-            url, headers=Http.headers, timeout=30)  # 超时的时候回报错并重试
+            url, headers=headers, timeout=30)  # 超时的时候回报错并重试
 
         if(response.status_code != 200):
             print(f'{url}请求状态{response.status_code}，马上重试')
@@ -106,7 +108,7 @@ class Http(object):
             resp = Http.get_internal(url)
             resp.encoding = encoding
             return resp.text
-        except AssertionError as ex:
+        except Exception as ex:
             print(ex)
             return ''
 
