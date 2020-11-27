@@ -5,7 +5,7 @@ License: Copyright © 2019 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-20 13:11:13
 LastEditors: iwenli
-LastEditTime: 2020-11-22 15:47:21
+LastEditTime: 2020-11-27 18:05:56
 Description: 工具
 '''
 __author__ = 'iwenli'
@@ -15,7 +15,27 @@ from retrying import retry
 from bs4 import BeautifulSoup
 import re
 import os
+import random
+from conf import proxy_url
 from fake_useragent import UserAgent
+
+
+def get_proxy():
+    res = requests.get('{}get/'.format(proxy_url)).json().get("proxy")
+    return res
+
+
+def get_proxys():
+    return ['175.42.68.220:9999']
+    res = requests.get('{}get_all/'.format(proxy_url)).json()
+    ret = []
+    for item in res:
+        ret.append(item.get('proxy'))
+    return ret
+
+
+def delete_proxy(proxy):
+    requests.get("{}delete/?proxy={}".format(proxy_url, proxy))
 
 
 class Convert(object):
@@ -83,16 +103,32 @@ class Http(object):
     一个发送网络请求的简单封装
     """
     ua = UserAgent()
+    proxy = []
+
+    def __init__(self, useproxy=False):
+        self.useproxy = useproxy
+        if(useproxy):
+            self.proxy = get_proxys()
+
     # 最大重试3次，3次全部报错，才会报错
 
     @retry(stop_max_attempt_number=3, wait_random_min=1, wait_random_max=30)
-    def get_internal(url):
+    def get_internal(self, url):
         '''
         get请求的出口
         '''
         headers = {'User-Agent': str(Http.ua.random)}
+
+        proxies = None
+        if(self.useproxy):
+            ip = random.choice(self.proxy)
+            proxies = {
+                'http': ip,
+                'https': ip
+            }
         response = requests.get(
-            url, headers=headers, timeout=30)  # 超时的时候回报错并重试
+            url, headers=headers, proxies=proxies, timeout=30, verify=False)
+        # 超时的时候回报错并重试
 
         if(response.status_code != 200):
             print(f'{url}请求状态{response.status_code}，马上重试')
@@ -101,11 +137,11 @@ class Http(object):
         return response
 
     def get(self, url):
-        return Http.get_internal(url)
+        return self.get_internal(url)
 
     def get_text(self, url, encoding='utf-8'):
         try:
-            resp = Http.get_internal(url)
+            resp = self.get_internal(url)
             resp.encoding = encoding
             return resp.text
         except Exception as ex:
@@ -113,7 +149,7 @@ class Http(object):
             return ''
 
     def get_cookie(self, url, cookie_name):
-        response = Http.get_internal(url)
+        response = self.get_internal(url)
         cookies = requests.utils.dict_from_cookiejar(response.cookies)
         cookie = cookies.get(cookie_name)
         return cookie
@@ -144,10 +180,12 @@ class File(object):
             f.write(txt)
 
 
-http = Http()
+http = Http(useproxy=True)
 convert = Convert()
 file = File()
 
+rep = http.get('http://m.qidian.com/book/2019')
+print(rep.text)
 # num = convert.chinese_to_arabic('五百二十3')
 # print(num)
 
