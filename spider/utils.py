@@ -5,7 +5,11 @@ License: Copyright © 2019 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-20 13:11:13
 LastEditors: iwenli
+<<<<<<< HEAD
 LastEditTime: 2020-11-27 18:05:56
+=======
+LastEditTime: 2020-11-27 17:10:25
+>>>>>>> cc699ee9700ecd8444da138eb14c1f9cc78a1745
 Description: 工具
 '''
 __author__ = 'iwenli'
@@ -26,7 +30,10 @@ def get_proxy():
 
 
 def get_proxys():
+<<<<<<< HEAD
     return ['175.42.68.220:9999']
+=======
+>>>>>>> cc699ee9700ecd8444da138eb14c1f9cc78a1745
     res = requests.get('{}get_all/'.format(proxy_url)).json()
     ret = []
     for item in res:
